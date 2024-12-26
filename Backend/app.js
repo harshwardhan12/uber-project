@@ -1,5 +1,5 @@
-const dotenv = require('dotenv');
-dotenv.config();
+const dotenv = require('dotenv');   // Load environment variables from a .env file
+dotenv.config();                    // Initialize dotenv to read .env file
 
 const express = require('express');
 const cors = require('cors');

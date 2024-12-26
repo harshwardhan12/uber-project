@@ -173,3 +173,4 @@ The request body should be in JSON format and include the following fields:
     - `capacity` (number): Vehicle passenger capacity.
     - `vehicleType` (string): Type of vehicle.
 - `token` (String): JWT Token
+

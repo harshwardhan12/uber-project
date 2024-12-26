@@ -52,17 +52,67 @@ module.exports.loginUser = async (req, res, next) => {
   const token = user.generateAuthToken();
   res.cookie("token", token);
 
-  res.status(201).json({ user, token });
+  res.status(200).json({ user, token });
 };
 
 module.exports.getUserProfile = async (req, res, next) => {
   res.status(200).json(req.user);
 };
 
-module.exports.logoutUser = async (req, res, next) => {
-  res.clearCookie("token");
-  const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+// module.exports.logoutUser = async (req, res, next) => {
+//   try {
+//     const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+    
+//     // Check if the token is already blacklisted
+//     const isBlacklisted = await blackListTokenModel.findOne({ token });
 
-  await blackListTokenModel.create({ token });
-  res.status(200).json({ message: "Logged out" });
+//     if (!isBlacklisted) {
+//       await blackListTokenModel.create({ token });
+//     }
+
+//     // Add token to blacklist
+//     // await blackListTokenModel.create({ token });
+
+//     res.clearCookie("token");
+//     res.status(200).json({ message: "Logged out" });
+//   } catch (err) {
+//     console.error("Error in logout:", err);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
+module.exports.logoutUser = async (req, res, next) => {
+  try {
+    // Log to see if the function is being called
+    console.log("Logout function called");
+
+    // Retrieve token from cookies or headers
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    console.log("Token received:", token);
+
+    // Check if token exists
+    if (!token) {
+      console.log("No token found");
+      return res.status(400).json({ message: "No token provided" });
+    }
+
+    // Check if the token is blacklisted
+    const isBlacklisted = await blackListTokenModel.findOne({ token });
+    console.log("Token blacklisted:", isBlacklisted);
+
+    if (!isBlacklisted) {
+      console.log("Adding token to blacklist");
+      await blackListTokenModel.create({ token });
+    }
+
+    // Clear the token cookie
+    res.clearCookie("token");
+    console.log("Token cleared from cookies");
+
+    // Return success message
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Error in logout:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
